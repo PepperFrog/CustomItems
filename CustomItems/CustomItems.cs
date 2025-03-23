@@ -5,7 +5,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-#pragma warning disable SA1200
 namespace CustomItems;
 
 using System;

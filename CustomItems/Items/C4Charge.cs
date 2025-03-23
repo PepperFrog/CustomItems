@@ -96,7 +96,7 @@ public class C4Charge : CustomGrenade
             new()
             {
                 Chance = 50,
-                Location = SpawnLocationType.InsideNukeArmory,
+                Location = SpawnLocationType.Inside173Armory,
             },
 
             new()

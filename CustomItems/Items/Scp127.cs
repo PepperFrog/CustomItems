@@ -83,13 +83,6 @@ public class Scp127 : CustomWeapon
     private List<CoroutineHandle> Coroutines { get; } = new();
 
     /// <inheritdoc/>
-    public override void Init()
-    {
-        Coroutines.Add(Timing.RunCoroutine(DoAmmoRegeneration()));
-        base.Init();
-    }
-
-    /// <inheritdoc/>
     public override void Destroy()
     {
         foreach (CoroutineHandle handle in Coroutines)
@@ -128,8 +121,8 @@ public class Scp127 : CustomWeapon
             {
                 if (!Check(item) || !(item is Firearm firearm))
                     continue;
-                if (firearm.Ammo < ClipSize)
-                    firearm.Ammo += RegenerationAmount;
+                if (firearm.BarrelAmmo < ClipSize)
+                    firearm.BarrelAmmo += RegenerationAmount;
                 hasItem = true;
             }
 
@@ -137,22 +130,5 @@ public class Scp127 : CustomWeapon
                 yield break;
         }
     }
-
-    private IEnumerator<float> DoAmmoRegeneration()
-    {
-        while (true)
-        {
-            yield return Timing.WaitForSeconds(RegenerationDelay);
-
-            foreach (Pickup pickup in Pickup.List)
-            {
-                if (Check(pickup) && pickup.Base is FirearmPickup firearmPickup && firearmPickup.NetworkStatus.Ammo < ClipSize)
-                {
-                    firearmPickup.NetworkStatus = new FirearmStatus((byte)(firearmPickup.NetworkStatus.Ammo + RegenerationAmount), firearmPickup.NetworkStatus.Flags, firearmPickup.NetworkStatus.Attachments);
-
-                    yield return Timing.WaitForSeconds(0.5f);
-                }
-            }
-        }
-    }
+    
 }

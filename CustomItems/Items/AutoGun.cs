@@ -15,11 +15,9 @@ using Exiled.API.Features.Items;
 using Exiled.API.Features.Spawn;
 using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
-
 using PlayerRoles;
 using PlayerStatsSystem;
 using UnityEngine;
-
 using Player = Exiled.API.Features.Player;
 
 /// <inheritdoc />
@@ -91,16 +89,17 @@ public class AutoGun : CustomWeapon
                     continue;
 
                 Vector3 forward = ev.Player.CameraTransform.forward;
-                if (firearm.Ammo == ammoUsed &&
-                    (!PerHitAmmo || firearm.Ammo == 0 || player.Role == RoleTypeId.Spectator ||
-                     (player.Role.Side == ev.Player.Role.Side && (player.Role.Side != ev.Player.Role.Side || !TeamKill)) ||
+                if (firearm.BarrelAmmo == ammoUsed &&
+                    (!PerHitAmmo || firearm.BarrelAmmo == 0 || player.Role == RoleTypeId.Spectator ||
+                     (player.Role.Side == ev.Player.Role.Side &&
+                      (player.Role.Side != ev.Player.Role.Side || !TeamKill)) ||
                      player == ev.Player ||
                      !(Vector3.Distance(ev.Player.Position, player.Position) < MaxDistance) ||
                      Physics.Raycast(ev.Player.CameraTransform.position + forward, forward, out var hit, MaxDistance)))
                     continue;
 
                 ammoUsed++;
-                player.Hurt(new FirearmDamageHandler(firearm.Base, Damage, player.Role.Side != Side.Scp));
+                player.Hurt(new FirearmDamageHandler(firearm.Base, Damage, 0, player.Role.Side != Side.Scp));
                 if (player.IsDead)
                     player.ShowHint("<color=#FF0000>YOU HAVE BEEN KILLED BY AUTO AIM GUN</color>");
                 ev.Player.ShowHitMarker(1f);
@@ -111,7 +110,7 @@ public class AutoGun : CustomWeapon
                 ammoUsed = 1;
             }
 
-            firearm.Ammo -= (byte)ammoUsed;
+            firearm.BarrelAmmo -= (byte)ammoUsed;
             ev.IsAllowed = false;
         }
     }

@@ -209,7 +209,7 @@ public class EmpGrenade : CustomGrenade
                         radio.IsEnabled = false;
                         break;
                     case Flashlight flashlight:
-                        flashlight.Active = false;
+                        flashlight.IsEmittingLight = false;
                         break;
                     case Firearm firearm:
                         {

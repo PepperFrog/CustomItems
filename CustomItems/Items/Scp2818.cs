@@ -18,7 +18,6 @@ using Exiled.API.Features.Items;
 using Exiled.API.Features.Spawn;
 using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
-
 using MEC;
 using PlayerRoles;
 using PlayerStatsSystem;
@@ -51,7 +50,8 @@ public class Scp2818 : CustomWeapon
     /// <summary>
     /// Gets or sets how often the <see cref="ShooterProjectile"/> coroutine will move the player.
     /// </summary>
-    [Description("How frequently the shooter will be moved towards his target.\n# Note, a lower tick frequency, and lower MaxDistance will make the travel smoother, but be more stressful on your server.")]
+    [Description(
+        "How frequently the shooter will be moved towards his target.\n# Note, a lower tick frequency, and lower MaxDistance will make the travel smoother, but be more stressful on your server.")]
     public float TickFrequency { get; set; } = 0.00025f;
 
     /// <summary>
@@ -75,7 +75,7 @@ public class Scp2818 : CustomWeapon
             new()
             {
                 Chance = 60,
-                Location = SpawnLocationType.InsideHid,
+                Location = SpawnLocationType.InsideHidChamber,
             },
             new()
             {
@@ -89,87 +89,49 @@ public class Scp2818 : CustomWeapon
     [Description("The amount of damage the weapon deals when the projectile hits another player.")]
     public override float Damage { get; set; } = float.MaxValue;
 
+    public string DeathReasonUser { get; set; } = "Vaporized by becoming a bullet";
+    public string DeathReasonTarget { get; set; } = "Vaporized by a human bullet";
+
     /// <inheritdoc/>
-    protected override void OnShooting(ShootingEventArgs ev)
+    protected override void OnShot(ShotEventArgs ev)
     {
-        try
+        if (ev.Target == null)
         {
-            foreach (Item item in ev.Player.Items.ToList())
-                if (Check(item))
-                {
-                    Log.Debug($"SCP-2818: Found a 2818 in inventory of shooter, removing.");
-                    ev.Player.RemoveItem(item);
-                }
-
-            Player target = Player.Get(ev.TargetNetId);
-            if (ev.ShotPosition == Vector3.zero || (ev.Player.Position - ev.ShotPosition).sqrMagnitude > 1000f)
-            {
-                ev.Player.Hurt(new UniversalDamageHandler(-1f, DeathTranslations.Warhead));
-                ev.IsAllowed = false;
-                return;
-            }
-
-            Timing.RunCoroutine(ShooterProjectile(ev.Player, ev.ShotPosition, target));
-        }
-        catch (Exception e)
-        {
-            Log.Error(e);
-        }
-    }
-
-    private IEnumerator<float> ShooterProjectile(Player player, Vector3 targetPos, Player? target = null)
-    {
-        RoleTypeId playerRole = player.Role;
-
-        // This is the camera transform used to make grenades appear like they are coming from the player's head instead of their stomach. We move them here so they aren't skidding across the floor.
-        player.Position = player.CameraTransform.TransformPoint(new Vector3(0.0715f, 0.0225f, 0.45f));
-        player.Scale = new Vector3(0.15f, 0.15f, 0.15f);
-        if (target != null)
-        {
-            while (Vector3.Distance(player.Position, target.Position) > (MaxDistancePerTick + 0.15f))
-            {
-                if (player.Role != playerRole)
-                    break;
-
-                player.Position = Vector3.MoveTowards(player.Position, target.Position, MaxDistancePerTick);
-
-                yield return Timing.WaitForSeconds(TickFrequency);
-            }
+            Log.Debug(
+                $"VVUP Custom Items: SCP-2818, {ev.Player.Nickname} fired and missed a target, teleporting them to bullet impact location ({ev.Position}");
+            ev.Player.Position = ev.Position;
         }
         else
         {
-            while (Vector3.Distance(player.Position, targetPos) > 0.5f)
+            Log.Debug(
+                $"VVUP Custom Items: SCP-2818, {ev.Player.Nickname} shot and hit {ev.Target.Nickname}, running hit code");
+            ev.CanHurt = false;
+            ev.Player.Position = ev.Target.Position;
+            if (ev.Target.Health <= Damage)
             {
-                if (player.Role != playerRole)
-                    break;
-
-                player.Position = Vector3.MoveTowards(player.Position, targetPos, MaxDistancePerTick);
-
-                yield return Timing.WaitForSeconds(TickFrequency);
+                Log.Debug(
+                    $"VVUP Custom Items: SCP-2818, {ev.Target.Nickname} has {ev.Target.Health} but damage is set to {Damage}. Killing {ev.Target.Nickname}");
+                ev.Target.Kill(DeathReasonTarget);
+            }
+            else
+            {
+                Log.Debug(
+                    $"VVUP Custom Items: SCP-2818, {ev.Target.Nickname} has {ev.Target.Health} which is higher than {Damage}, dealing {Damage} to {ev.Target.Nickname}");
+                ev.Target.Hurt(Damage);
             }
         }
-
-        player.Scale = Vector3.one;
-
-        // Make sure the scale is reset properly *before* killing them. That's important.
-        yield return Timing.WaitForSeconds(0.01f);
 
         if (DespawnAfterUse)
         {
-            Log.Debug($"inv count: {player.Items.Count}");
-            foreach (Item item in player.Items)
-            {
-                if (Check(item))
-                {
-                    Log.Debug("found 2818 in inventory, doing funni");
-                    player.RemoveItem(item);
-                }
-            }
+            Log.Debug(
+                $"VVUP Custom Items: SCP-2818, Despawn After Use is true, removing SCP-2818 from {ev.Player.Nickname}'s inventory");
+            ev.Player.RemoveItem(ev.Item);
         }
 
-        if (player.Role != RoleTypeId.Spectator)
-            player.Hurt(new UniversalDamageHandler(-1f, DeathTranslations.Warhead));
-        if (target?.Role != RoleTypeId.Spectator)
-            target?.Hurt(new UniversalDamageHandler(Damage, DeathTranslations.Warhead));
+        Timing.CallDelayed(0.1f, () =>
+        {
+            Log.Debug($"VVUP Custom Items: SCP-2818, Killing {ev.Player.Nickname}");
+            ev.Player.Kill(DeathReasonUser);
+        });
     }
 }

@@ -53,7 +53,7 @@ public class ImplosionGrenade : CustomGrenade
             new()
             {
                 Chance = 50,
-                Location = SpawnLocationType.InsideLocker,
+                Location = SpawnLocationType.InsideLczArmory,
             },
             new()
             {

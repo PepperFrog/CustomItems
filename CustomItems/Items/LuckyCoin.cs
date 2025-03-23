@@ -35,7 +35,8 @@ public class LuckyCoin : CustomItem
     public override string Name { get; set; } = "LC-119";
 
     /// <inheritdoc/>
-    public override string Description { get; set; } = "This coin has magical properties when it is dropped inside of SCP-106's pocket dimension.";
+    public override string Description { get; set; } =
+        "This coin has magical properties when it is dropped inside of SCP-106's pocket dimension.";
 
     /// <inheritdoc/>
     public override float Weight { get; set; } = 0f;
@@ -49,7 +50,7 @@ public class LuckyCoin : CustomItem
             new()
             {
                 Chance = 100,
-                Location = SpawnLocationType.InsideLocker,
+                Location = SpawnLocationType.InsideLczWc,
             },
             new()
             {
@@ -89,7 +90,7 @@ public class LuckyCoin : CustomItem
     }
 
     /// <inheritdoc/>
-    protected override void OnDropping(DroppingItemEventArgs ev)
+    protected override void OnDroppingItem(DroppingItemEventArgs ev)
     {
         if (!Check(ev.Item))
             return;
@@ -103,7 +104,7 @@ public class LuckyCoin : CustomItem
         }
         else
         {
-            base.OnDropping(ev);
+            base.OnDroppingItem(ev);
         }
     }
 

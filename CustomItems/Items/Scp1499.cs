@@ -48,7 +48,7 @@ public class Scp1499 : CustomItem
             new()
             {
                 Chance = 10,
-                Location = SpawnLocationType.InsideHid,
+                Location = SpawnLocationType.InsideHidChamber,
             },
         },
     };
@@ -83,7 +83,7 @@ public class Scp1499 : CustomItem
     }
 
     /// <inheritdoc/>
-    protected override void OnDropping(DroppingItemEventArgs ev)
+    protected override void OnDroppingItem(DroppingItemEventArgs ev)
     {
         if (scp1499Players.ContainsKey(ev.Player) && Check(ev.Item))
         {
@@ -93,7 +93,7 @@ public class Scp1499 : CustomItem
         }
         else
         {
-            base.OnDropping(ev);
+            base.OnDroppingItem(ev);
         }
     }
 

@@ -5,6 +5,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using InventorySystem.Items.Firearms;
+using InventorySystem.Items.ThrowableProjectiles;
+
 namespace CustomItems.Items;
 
 using System.Collections.Generic;
@@ -99,9 +102,9 @@ public class GrenadeLauncher : CustomWeapon
     {
         if (UseGrenades)
         {
-            ev.IsAllowed = false;
+            ev.IsAllowed = true;
 
-            if (!(ev.Player.CurrentItem is Firearm firearm) || firearm.Ammo >= ClipSize)
+            if (!(ev.Player.CurrentItem is Firearm firearm) || firearm.BarrelAmmo >= ClipSize)
                 return;
 
             Log.Debug($"{Name}.{nameof(OnReloading)}: {ev.Player.Nickname} is reloading!");
@@ -121,9 +124,8 @@ public class GrenadeLauncher : CustomWeapon
                 }
 
                 ev.Player.DisableEffect(EffectType.Invisible);
-                ev.Player.Connection.Send(new RequestMessage(ev.Firearm.Serial, RequestType.Reload));
 
-                Timing.CallDelayed(3f, () => firearm.Ammo = ClipSize);
+                Timing.CallDelayed(3f, () => firearm.BarrelAmmo = ClipSize);
 
                 loadedGrenade = item.Type == ItemType.GrenadeFlash ? ProjectileType.Flashbang :
                     item.Type == ItemType.GrenadeHE ? ProjectileType.FragGrenade : ProjectileType.Scp018;
@@ -143,7 +145,7 @@ public class GrenadeLauncher : CustomWeapon
         ev.IsAllowed = false;
 
         if (ev.Player.CurrentItem is Firearm firearm)
-            firearm.Ammo -= 1;
+            firearm.BarrelAmmo -= 1;
 
         Vector3 pos = ev.Player.CameraTransform.TransformPoint(new Vector3(0.0715f, 0.0225f, 0.45f));
         Projectile projectile;

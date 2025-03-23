@@ -137,12 +137,12 @@ public class Scp714 : CustomItem
     }
 
     /// <inheritdoc/>
-    protected override void OnDropping(DroppingItemEventArgs ev)
+    protected override void OnDroppingItem(DroppingItemEventArgs ev)
     {
         if (Check(ev.Player))
             SetRingState(ev.Player, false);
 
-        base.OnDropping(ev);
+        base.OnDroppingItem(ev);
     }
 
     private void OnFlippingCoin(FlippingCoinEventArgs ev)
