@@ -31,7 +31,6 @@ using UnityEngine;
 using Camera = Exiled.API.Features.Camera;
 using CameraType = Exiled.API.Enums.CameraType;
 using Item = Exiled.API.Features.Items.Item;
-using KeycardPermissions = Interactables.Interobjects.DoorUtils.KeycardPermissions;
 using Player = Exiled.API.Features.Player;
 
 /// <inheritdoc />
@@ -172,7 +171,7 @@ public class EmpGrenade : CustomGrenade
             if (door == null ||
                 BlacklistedDoorTypes.Contains(door.Type) ||
                 (door.DoorLockType > 0 && !OpenLockedDoors) ||
-                (door.RequiredPermissions.RequiredPermissions != KeycardPermissions.None && !OpenKeycardDoors) || door.Type.IsElevator())
+                (door.KeycardPermissions != KeycardPermissions.None && !OpenKeycardDoors) || door.Type.IsElevator())
                 continue;
 
             Log.Debug("Opening a door!");
