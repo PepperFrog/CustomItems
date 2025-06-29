@@ -148,7 +148,7 @@ public class MediGun : CustomWeapon
                 ev.Player.ArtificialHealth += ev.Amount;
 
                 if (ev.Player.ArtificialHealth >= ev.Player.MaxArtificialHealth)
-                    DoReviveZombie(ev.Player, ev.Player);
+                    DoReviveZombie(ev.Player, ev.Attacker);
 
                 ev.IsAllowed = false;
             }
