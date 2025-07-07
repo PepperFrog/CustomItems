@@ -131,15 +131,13 @@ public class MediGun : CustomWeapon
     {
         if (Check(ev.Attacker.CurrentItem) && ev.Attacker != ev.Player && ev.DamageHandler.Base is FirearmDamageHandler firearmHandler && firearmHandler.WeaponType == ev.Attacker.CurrentItem.Type)
         {
-            if (Damage > 0)
-                ev.Amount = Damage;
+            ev.IsAllowed = false;
 
             if (ev.Player.Role.Side == ev.Attacker.Role.Side)
             {
                 float amount = ev.Amount * HealingModifier;
                 ev.Player.Heal(amount);
-
-                ev.IsAllowed = false;
+                
             }
             else if (ev.Player.Role == RoleTypeId.Scp0492 && HealZombies)
             {
@@ -149,8 +147,7 @@ public class MediGun : CustomWeapon
 
                 if (ev.Player.ArtificialHealth >= ev.Player.MaxArtificialHealth)
                     DoReviveZombie(ev.Player, ev.Attacker);
-
-                ev.IsAllowed = false;
+                
             }
         }
     }
